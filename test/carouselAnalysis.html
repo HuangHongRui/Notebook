@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Inv Demo</title>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <style>
+        ul,
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .carousel {
+            overflow: hidden;
+            width: 300px;
+            height: 200px;
+            position: relative;
+            border-radius: 20px;
+        }
+        .img-ct {
+            overflow: hidden;
+            position: absolute;
+        }
+        .img-ct li {
+            float: left;
+        }
+        .img-ct li img {
+            width: 300px;
+            height: 200px;
+        }
+        .arrow {
+            position: absolute;
+            z-index: 1;
+            border: 2px solid #bbb;
+            width: 25px;
+            height: 25px;
+            top:50%;
+            transform:translateY(-50%);
+            color: #bbb;
+            border-radius: 15px;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .arrow:hover {
+            border-color: rgba(255,255,2,0.5);
+            color: #888;
+            background-color: rgba(255,255,0,0.5)
+        }
+        .turnLeft {
+            left: 10px;
+        }
+        .turnRight {
+            right: 10px;
+        }
+        .bullet {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            height: 2px;
+            z-index: 2;
+            text-align: center;
+        }
+        .bullet li {
+            display: inline-block;
+            border: solid 2px #bbb;
+            width: 20px;
+            height: 5px;
+            cursor: pointer;
+        }
+        .active {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <ul class="img-ct">
+            <li data-id=0><a href="#"><img src="https://images.pexels.com/photos/160699/girl-dandelion-yellow-flowers-160699.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=1><a href="#"><img src="https://images.pexels.com/photos/206593/pexels-photo-206593.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=2><a href="#"><img src="https://images.pexels.com/photos/87293/pexels-photo-87293.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=3><a href="#"><img src="https://images.pexels.com/photos/407931/pexels-photo-407931.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+        </ul>
+        <a class="turnLeft arrow" href="#"><</a>
+        <a class="turnRight arrow" href="#">></a>
+        <ul class="bullet">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <script>
+        //注意～当把一个Dom节点缓存一起来之后（var），如果文档动态发生改变之后
+        //这些变量上不变的！
+        var $imgCt = $('.img-ct')               //容器
+        var $imgs = $('.carousel .img-ct >li')  //初始容器li 
+        var $leftBtn = $('.turnLeft')           //按键左
+        var $rightBtn = $('.turnRight')         //按键右
+        var $bullets = $('.bullet li')          //index键
+        var lock = false;                        //多触发锁～
+        var pageIndex = 0                       //页面基点
+
+        var imgCount = $imgs.length             //初始图片的数量 => 4
+        var imgWidth = $imgs.width()            //初始图片的宽度 => 300
+        $imgCt.append($imgs.first().clone())    //克隆增至ul尾部
+        $imgCt.prepend($imgs.last().clone())    //克隆增至ul头部
+        $imgCt.width((imgCount + 2) * imgWidth) //容器的css宽度不能写！防止后续增加图片
+        $imgCt.css({left: -imgWidth})           //容器的css向左前进 300
+
+        $leftBtn.click(function() {             //点击触发滚左函数
+            turnLeft(1)
+        })
+        $rightBtn.click(function(){             //点击出发滚右函数
+            turnRight(1)
+        })
+
+        $bullets.click(function() {             //点击index键触发
+            var index = $(this).index()         //下标基点 为点击的index
+            if (index > pageIndex) {            //如下标基点值 大于 页面基点
+                turnRight(index - pageIndex)    //触发滚右函数 （滚动量）
+            } else if (index < pageIndex){      //否则.如小于 页面基点值
+                turnLeft(pageIndex-index)        //触发滚左！
+            }
+        })
+
+        function turnRight(btnNum) {            //滚右按键
+            if (lock) return;
+            lock = true;
+            $imgCt.animate({                    //容器动画
+                left: "-=" + btnNum * imgWidth  //滚动量
+            },function() {                      //
+                pageIndex += btnNum             //
+                if (pageIndex === imgCount) {   //如果基点&数量一致
+                    pageIndex = 0               //初始重载页面基点
+                    $imgCt.css({left: -imgWidth})//容器css滚左
+                }
+            setBullet()                         //触发下标键被选样色
+            lock = false;
+            })
+        }
+        function turnLeft(btnNum) {             //滚左函数
+            if (lock) return;
+            lock = true;                        //锁上
+            $imgCt.animate({                    //动画
+                left: "+=" + btnNum * imgWidth  //滚右（可想象成一颗球，球滚右边，你看到就上显现出来的左部分）
+            },function() {  
+                pageIndex -= btnNum;            //
+                if (pageIndex < 0){             //如等页基点等于-1，（最后一页）
+                    pageIndex = imgCount-1      //
+                    $imgCt.css({left:-imgCount*imgWidth})
+                }
+            setBullet()
+            lock = false;                       //解锁
+            })
+        }
+        function setBullet() {                  //选择删C增C
+            $bullets.removeClass('active')
+                .eq(pageIndex)
+                .addClass('active')
+        }
+
+        setInterval(function(){                 //定时
+            turnRight(1)
+        },3000)
+    </script>
+</body>
+</html>
