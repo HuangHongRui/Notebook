@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Demo</title>
+	<script src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+<style>
+.content{
+			position: relative;
+
+		}
+
+		.item{
+			position: absolute;
+			width: 200px;
+			margin-right: 10px;
+			margin-top: 10px;
+			transition: all 2s;
+		}
+
+		.h1{
+			height: 200px;
+			background-color: #f4b300;
+		}
+
+		.h2{
+			height: 300px;
+			background-color: #691BB8;
+		}
+
+		.h3{
+			height: 400px;
+			background-color: #006ac1;
+		}
+</style>
+</head>
+<body>
+
+<div class="content">
+	<div class="item h1">
+		1
+	</div>
+	<div class="item h3">
+		2
+	</div>
+	<div class="item h2">
+		3
+	</div>
+	<div class="item h1">
+		4
+	</div>
+	<div class="item h1">
+		5
+	</div>
+	<div class="item h3">
+		6
+	</div>
+	<div class="item h3">
+		7
+	</div>
+	<div class="item h2">
+		8
+	</div>
+	<div class="item h1">
+		9
+	</div>
+	<div class="item h3">
+		10
+	</div>
+	<div class="item h3">
+		11
+	</div>
+	<div class="item h3">
+		12
+	</div>
+	<div class="item h2">
+		13
+	</div>
+	<div class="item h2">
+		14
+	</div>
+<script>
+
+	var packBox = (function() {	//来一个立即执行函数
+		function init() {	//再来个函数
+			encBox()		//调用主函数
+			$(window).resize(function(){
+				encBox()	//窗口触发调用
+			})
+		}
+
+	var encBox = (function(){
+
+	var $ct = $('.content'),									//容器
+		$item = $('.content .item'),							//item
+		$ctWidth = $ct.width(),									//容器宽度
+		$itemWidth = $item.outerWidth(true),					//item元素宽度
+		$ctLen =  parseInt($ctWidth / $itemWidth),				//每行几个[2次～坑点：如忘了取整，会导致屏幕宽度会撑开0.0]
+		cascadeArray = [];										//来个数组
+		
+		for(var i=0; i<$ctLen ;i++){
+			cascadeArray[i] = 0;								//初始～
+		}
+
+		$item.each(function(){
+			var minDiv = Math.min.apply(Math,cascadeArray)		//获取数组里最小的元素～-。-
+			var minDivDix = cascadeArray.indexOf(minDiv)		//获取其下标
+
+			$(this).css({										//循环到的元素将一一放到每次的最小值的后面.
+				top: cascadeArray[minDivDix],					//最小值的下标	【坑点:如无围绕数组，会无法换行0.0,】
+				left: $(this).outerWidth(true) * minDivDix		//宽度 * 下标等于距离左边多远～
+			})
+			cascadeArray[minDivDix] += $(this).outerHeight(true)
+		})
+		
+	})
+		
+		return {			//这个函数最后返回出来的
+			返回值 : init	  //init就上面的init函数..可调用
+		}
+	})()
+
+packBox.返回值()	//调用这个封装好的函数里面的方法0.0
+	
+
+
+
+</script>
+</div>
+</body>
+</html>
+
+<!--var 名 = (function(){
+    function init() {
+        主函数()
+        $(window).resize(function() {
+            主函数()
+        })
+    }
+
+
+    主函数 = function() {
+        ^^^^^^
+    }
+
+    return {
+        返回值: init
+    }
+})()-->
+
+<!--// autoDoit()
+// 	$(window).resize(function() {
+// 		autoDoit()
+// 	})
+
+// function autoDoit() {
+// 	var $ct = $('.content'),			//容器
+// 		$item = $('.content .item'),	//item
+// 		itemWidth = $item.outerWidth(true),
+// 		ctLen = parseInt($ct.width() / itemWidth),	//容器每行几个item
+// 		cascadeArray = [];				//初始
+
+// 	for(var i=0; i<ctLen; i++) {
+// 		cascadeArray[i] = 0;		//均为0
+// 	}
+// 	$item.each(function() {
+// 		console.log(1)
+// 		var idx = Math.min.apply(null,cascadeArray)		//最小值	
+// 		var beMin = cascadeArray.indexOf(idx)	//X的下标
+// 		$(this).css({
+// 			top:cascadeArray[beMin],	
+// 			left:$(this).outerWidth(true)*beMin
+// 			})
+// 		cascadeArray[beMin] += $(this).outerHeight(true)	
+// 	})
+// }-->

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        html {
+            box-sizing: border-box; 
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .ct {
+            margin: 0 auto;
+        }
+
+        .newsLi {
+            margin: 5px;
+            border: solid 2px;
+        }
+
+        .ct >ul {
+            list-style: none;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            /*border: solid  1px #000;*/
+        }
+        
+        .newsLi >a >.img {
+            max-width: 250px;
+            float: left;
+
+            /*border: solid 2px;*/
+        }
+
+        .newsLi >a >div img {
+            width: 100%;
+        }
+
+        .newsLi >a >.info {
+            margin-left: 250px;
+            /*padding: 20px 0; */
+            /*border: solid 2px;*/
+        }
+
+        .newsLi >a >.info h3{
+            display: inline-block;
+            line-height: 1em;
+            font-weight: bold;
+            margin: 20px 10px 0 10px;
+        }
+
+        .newsLi >a >.info p{
+            line-height: 1.5em; 
+            font-size: 15px;
+            margin: 15px 25px 0 20px;
+        }
+       
+        .newsLi >a :after{
+            content: '';
+            clear: both;
+            display: block;
+        }
+
+        .btn {
+            display: block;
+            margin: auto;
+            margin-top: -50px;
+            visibility: hidden; 
+            height: 20px;
+        }
+        .lastP {
+            font-size: 24px;
+            border: solid 2px  red;
+            background: #fcc;   
+            padding-left: 35%;
+        }
+    </style>
+</head>
+<body class="container">
+    <div class="ct">
+        <ul id="addTag">
+            <li class="newsLi">
+                <a href="http://www.thepaper.cn/newsDetail_forward_1718748">
+                <div class='img'>
+                    <img src="http://image2.thepaper.cn/image/5/876/588.jpg" alt="Pic">
+                </div>
+                <div class="info">
+                    <h3>讲真｜香港回归20周年：我的变与不变</h3>
+                    <p>二十年探索，二十年实践，香江几经风雨。澎湃新闻分别对生于77、97年的两代香港人进行访谈，从“回归一代“到主动拥抱变化的社会中坚力量，听他们讲述自己的回归故事。</p>
+                </div>
+                </a>
+            </li>
+            <li class="newsLi">
+                <a href="http://www.thepaper.cn/newsDetail_forward_1720096">
+                <div class='img'>
+                    <img src="http://image1.thepaper.cn/image/5/877/205.jpg" alt="Pic">
+                </div>
+                <div class="info">
+                    <h3>朝鲜宣布将判“暗杀金正恩”涉案者死刑，包括韩前总统朴槿惠</h3>
+                    <p>据新华社英文大广播报道，朝鲜官方28日宣布，将对暗杀朝鲜最高领导人金正恩一案的涉案者判处死刑。</p>
+                </div>
+                </a>
+            </li>            
+        </ul>
+        <p  class="btn">没喜欢的？点击更多.</p>
+    </div>
+
+    <script>
+    var pageIndex = 0;
+    var isOver = true;//
+    var isDataCome = true;//
+    request();
+        $(window).on('scroll', function() {
+            if ( isDataCome && isOver && isInWin($('.btn'))) {
+                request()
+            }
+        })
+        
+        function request(){
+        // $('.btn-info').on('click',function(){
+            isDataCome = false;
+            $.get('/getNews',{page:pageIndex}).done(function(datas){
+                
+                if (datas.status === 0) {
+                pageIndex += 1;
+                appendHtml(datas.data)
+                if (isInWin($('.btn')) && isOver && !isDataCome){
+                    request()
+                }
+            }else{
+                alert('抱歉,服务器加载失败')
+            }
+            isDataCome = true
+            }).fail(function(){
+                alert('抱歉,当前网络异常/服务器炸了..')
+            })
+        // })
+        }
+
+        function isInWin($node) {   
+            var winH = $(window).height(),
+                 scrollTop = $(window).scrollTop(),
+                //  offsetTop = ($node.offset || { "top": NaN }).top;
+                offsetTop = $node.offset().top;
+                eleH = $node.height();
+
+            if( offsetTop > scrollTop && winH + scrollTop > offsetTop){
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+
+        function appendHtml(transmitData){
+            if (transmitData.length === 0){
+                isOver = false;  //没了
+                $('.btn').remove()
+                $('<p class="lastP">到达最底层了.木有更多了.</p>').appendTo('.ct')
+                return
+            }
+            var htmls = '';
+            $.each(transmitData, function(){
+                htmls += '<li class="newsLi">'
+                htmls += '<a href="' + this.link + '">'
+                htmls += '<div class="img">'
+                htmls += '<img src="' + this.src + '" alt="Pic">'
+                htmls += '</div>'
+                htmls += '<div class="info">'
+                htmls += '<h3>' + this.title + '</h3>'
+                htmls += '<p>' + this.intro + '</p>'
+                htmls += '</div></a></li>'
+            })
+            $('#addTag').append(htmls)
+        }
+
+    </script>
+</body>
+</html>
+
+<!--/////////////////////////////////////////////////////////////////////////////////////////-->
+<!--server-->
+<!--
+app.get('/getNews',function(transmit,datas){  //transmit是传入数据    //datas 是传出数据！
+news = [
+
+    {
+        src: 'http://image.thepaper.cn/image/5/877/669.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1719472',
+        'title': '7换1！保罗加盟火箭联手哈登，他终于要摸到西决地板了',
+        'intro': '火箭快船交易正式达成：火箭送出贝弗利、德克尔、哈雷尔、希利亚德、利金斯、路易斯·威廉姆斯、凯尔·维尔彻，一个未来的首轮签以及部分现金，换来明星控卫克里斯·保罗。'
+    },
+    {
+        src: 'http://image.thepaper.cn/image/5/877/312.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720378',
+        'title': '新浪微博回应广电总局整改要求：关闭15分钟以上长视频上传',
+        'intro': '6月22日，国家新闻出版广电总局发布通知，要求微博按照有关规定，对视听节目服务进行全面整改。我们诚挚接受政府管理部门的批评。'
+    },
+    {
+        src: 'http://image1.thepaper.cn/image/5/877/448.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720427',
+        'title': '新浪微博宣布关闭超过15分钟长视频上传功能，股价震荡下跌',
+        'intro': '6月28日，新浪微博发布声明称，国家新闻出版广电总局发布通知，要求微博按照有关规定，对视听节目服务进行全面整改。'
+    },
+    {
+        src: 'http://image2.thepaper.cn/image/5/877/44.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720374',
+        'title': '国家电网董事长：中国电价总体在国际上处于中等偏下水平',
+        'intro': '国家电网公司董事长舒印彪在“引领能源行业转型”圆桌会议上  称，中国电价总体在国际上处于中等偏下水平，输配电价全球最低。'
+    },
+    {
+        src: 'http://image.thepaper.cn/image/5/877/441.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720449',
+        'title': '广州经济蓝皮书称广州科技创新不足，在四大一线城市中垫底',
+        'intro': '由广州大学广州发展研究院、广州市蓝皮书研究会28日发布的《2017广州经济蓝皮书》指出，与北京、上海、深圳等城市相比，科技创新依然是广州的短板。'
+    },
+    {
+        src: 'http://image.thepaper.cn/image/5/877/405.gif',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720448',
+        'title': '黑车司机被扣车不服，狂殴执法员被拘',
+        'intro': '6月26日，陕西省西安火车站运政稽查大队办公室内，一名因涉嫌非法营运被暂扣车的黑车司机，因不服处罚，在第5次找运政理论时，突然殴打当初办案的执法员，致其受伤。'
+    },
+    {
+        src: 'http://image1.thepaper.cn/image/5/877/436.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720402',
+        'title': '广西钦州钦北区财政局原局长被双开，被指严重损害政治生态',
+        'intro': '日前，中共钦州市纪委对钦州市钦北区政协办公室主任科员(钦州市钦北区财政局原党组书记、局长)宁思专严重违纪问题进行了立案审查。'
+    },
+    {
+        src: 'http://image1.thepaper.cn/image/5/877/427.jpg',
+        'link':'',
+        'title': '广西南宁、防城港两名原正处级官员受审，涉案金额均超千万元',
+        'intro': '27日，钦州市中院一审开庭审理防城港市防城区原区委书记、防城港市江山半岛旅游度假区工作委员会原书记莫小林涉嫌受贿罪案。'
+    },
+    {
+        src: 'http://image2.thepaper.cn/image/5/876/588.jpg',
+        'link': 'http://www.thepaper.cn/newsDetail_forward_1718748',
+        'title': '讲真｜香港回归20周年：我的变与不变',
+        'intro': '二十年探索，二十年实践，香江几经风雨。澎湃新闻分别对生于77、97年的两代香港人进行访谈，从“回归一代“到主动拥抱变化的社会中坚力量，听他们讲述自己的回归故事。'
+    },
+    {
+        src: 'http://image1.thepaper.cn/image/5/877/205.jpg',
+        'link': 'http://www.thepaper.cn/newsDetail_forward_1720096',
+        'title': '朝鲜宣布将判“暗杀金正恩”涉案者死刑，包括韩前总统朴槿惠',
+        'intro': '据新华社英文大广播报道，朝鲜官方28日宣布，将对暗杀朝鲜最高领导  人金正恩一案的涉案者判处死刑。'
+    },
+    {
+        src: 'http://image.thepaper.cn/image/5/877/648.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720420',
+        'title': '新型病毒载体可高效通过血脑屏障，有望用于治疗神经性疾病',
+        'intro': '病毒越来越多地被应用于基因疗法中，但要通过病毒向大脑这样的器官递送物质并不容易，如何通过血脑屏障是一个严峻挑战。'
+    },
+    {
+        src: 'http://image.thepaper.cn/image/5/877/555.jpg',
+        'link':'http://www.thepaper.cn/newsDetail_forward_1720390',
+        'title': '媒体聚焦户外直播：平台现搭讪秘笈，为制造看点挑战道德底线',
+        'intro': '与室内网络直播不同，户外直播无论是从成本还是人身安全方面，都比室内直播要求更高。不过，一些进行户外直播的网络主播为满足观众猎奇心理不惜铤而走险，游走在法律边缘。'
+    }
+]
+        //页 =    传进来的数据. ？ .  传进来的 key【属性】
+    var pageIdex = transmit.query.page;
+
+    var len = 3;    //数量
+
+        var datanews = news.slice(pageIdex*len, pageIdex*len + len)
+                    
+    datas.send({
+        status: 0, //状态'
+        data: datanews    //数据'
+    })
+})
+
+-->

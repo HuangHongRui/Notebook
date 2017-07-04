@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>carousel-Demo</title>
+	<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+<style>
+
+	.carousel {
+		margin:60px auto;
+		position: relative;
+		width: 470px;
+		height: 350px;
+		overflow: hidden;
+		border: solid 1px;
+		border-radius: 20px;
+		box-shadow:0px 0 100px  rgba(0,0,0,0.5)
+	}
+
+	ul,
+	li {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.img-ct {
+		overflow: hidden;
+		/*width: 1880px;	ForTheMoment*/
+		position: absolute;
+	}
+	
+	.img-ct li {
+		float: left;
+	}
+
+	.img-ct img {
+		width: 470px;
+		height: 350px;
+		cursor: default;
+	}
+
+	.img-ct img:hover {
+		opacity: 0.95;
+	}
+
+	.arrow	{
+		position: absolute;
+		color: black;
+		z-index: 1;
+		top:50%;
+		transform:translateY(-50%);
+		background-color: rgb(255,255,0);
+		opacity: 0.5;
+		border: solid 1px #fa0;
+		width: 30px;
+		height: 30px;
+		text-align: center;
+		line-height: 30px;
+		font-weight: 800;
+		text-decoration: none;
+		border-radius: 15px;
+	}
+
+	.turnLeft {
+		left: 1%;
+	}
+
+	.turnRight {
+		right: 1%;
+	}
+
+	.arrow:hover {
+		opacity: 0.7
+	}
+
+	.bullet {
+		left: 50%;
+		transform: translateX(-50%);
+		position: absolute;
+		z-index: 10;
+		bottom: 10px;
+	}
+
+	.bullet li {
+		border: solid  1px rgba(255,200,0,0.5);
+		width: 30px;
+		height: 6px;
+		display: inline-block;
+		background: rgba(255,200,0,0.3);
+		cursor: pointer;
+	}
+
+	.bullet >.active {
+		background-color: rgba(255,200,200,0.8);
+		height: 10px;
+		vertical-align: middle;
+	}
+</style>
+</head>
+<body>
+	<div class="carousel">
+		<ul class="img-ct">
+            <li data-id=0><a href="#"><img src="https://images.pexels.com/photos/160699/girl-dandelion-yellow-flowers-160699.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=1><a href="#"><img src="https://images.pexels.com/photos/206593/pexels-photo-206593.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=2><a href="#"><img src="https://images.pexels.com/photos/87293/pexels-photo-87293.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=3><a href="#"><img src="https://images.pexels.com/photos/407931/pexels-photo-407931.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+		</ul>
+		<a class="turnLeft arrow" href="#"><<</a>
+		<a class="turnRight arrow" href="#">>></a>
+		<ul class="bullet">
+			<li class="active"></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+	<script>
+
+		var $ct = $('.carousel .img-ct')	//容器
+		var $img = $('.img-ct >li')			//li图片
+		var imgLen = $img.length			//图片数量
+		var imgWidth = $img.width()		 	//图片宽度
+		var $turnLeft = $('.turnLeft')		//左按钮
+		var $turnRight = $('.turnRight')	//右按钮
+		var $indexBtn = $('.bullet li')		//下表按钮
+		$ct.append($img.first().clone());	//增一元素在兄弟后
+		$ct.prepend($img.last().clone());	//增一元素于兄弟最前
+		$ct.width(imgWidth * (imgLen + 2))//让容器加多2个li的宽度,此时显示第一个li，也就是新增的.需要做一个处理
+		$ct.css({left:-imgWidth})			//此时又回到第一张pic
+		var pageIndex = 0;					//基点
+		var lock = false;
+		var clock = true;
+		
+		$indexBtn.click(function() {
+			var index = $(this).index();	//所点击的下标
+			console.log(index)
+			if(index > pageIndex) {
+				turnRight(index-pageIndex)
+			} else if(pageIndex > index) {
+				turnLeft(pageIndex-index)
+			}
+		})
+		
+		$turnLeft.on('click', function() {	
+			turnLeft(1)
+		})
+
+		$turnRight.on('click', function() {
+			turnRight(1)
+		})
+
+		function turnRight(idx) {
+			if (lock) return;
+			lock = true;
+			$ct.animate ( {
+				left:"-="+ idx * imgWidth
+			},function(){
+				pageIndex += idx;
+				if (pageIndex === imgLen){
+					pageIndex = 0;
+					$ct.css({left:-imgWidth})
+				}
+				setBtnStyle()
+				lock = false;
+			})
+		}
+
+		function turnLeft(idx)	{
+			//触发，(包含在ct)图片往左滚.右边显示到窗口，那么减一个li(img)的宽,
+			//如果 基点 = -1 那么重置基点为0， 而且把下表和图调到length -1 
+			// $ct.animate({
+			// 	left: '-=' + $imgwidth
+			// })
+			if (lock) return;
+			lock = true;
+			$ct.animate( {
+				left:"+=" + idx * imgWidth
+			},function() {
+				pageIndex -= idx;
+				if (pageIndex < 0) {
+					pageIndex = imgLen-1
+					$ct.css({left: -imgLen * imgWidth})	
+				}
+				setBtnStyle()
+				lock = false;
+			})
+		}
+		function setBtnStyle() {
+			$indexBtn.removeClass('active')
+				.eq(pageIndex)
+				.addClass('active')
+		}	
+		
+		$('.carousel').hover(
+			function(){
+				clock = false
+			},
+			function(){
+				clock = true;
+		})
+
+		setInterval(function(){
+			if(clock){
+				turnRight(1)
+			}
+		},2000)
+	</script>
+</body>
+</html>
+<!--
+ v//容器
+//初始容器li 
+//按键左
+//按键右
+													 //index键
+																	 //多触发锁～
+ //页面基点
+//初始图片的数量 => 4
+//初始图片的宽度 => 300
+ //克隆增至ul尾部
+ //克隆增至ul头部
+//容器的css宽度不能写！防止后续增加图片
+//容器的css向左前进 300
+//点击触发滚左函数
+ //点击出发滚右函数
+//点击index键触发
+//下标基点 为点击的index
+//如下标基点值 大于 页面基点
+//触发滚右函数 （滚动量）
+//否则.如小于 页面基点值
+//触发滚左！
+//滚右按键
+//容器动画
+//滚动量
+//如果基点&数量一致
+初始重载页面基点
+//容器css滚左
+//触发下标键被选样色
+
+//滚左函数
+//锁上
+//动画
+//滚右（可想象成一颗球，球滚右边，你看到就上显现出来的左部分）
+
+
+如等页基点等于-1，（最后一页）
+//解锁
+//选择删C增C        
+//定时
+        -->

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Inv Demo</title>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <style>
+	.carousel {
+		margin:60px auto;
+		position: relative;
+		width: 470px;
+		height: 350px;
+		overflow: hidden;
+		border: solid 1px;
+		border-radius: 20px;
+		box-shadow:0px 0 100px  rgba(0,0,0,0.5)
+	}
+
+	ul,
+	li {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.img-ct {
+		overflow: hidden;
+		/*width: 1880px;	ForTheMoment*/
+		position: absolute;
+	}
+	
+	.img-ct li {
+		float: left;
+	}
+
+	.img-ct img {
+		width: 470px;
+		height: 350px;
+		cursor: default;
+	}
+
+	.img-ct img:hover {
+		opacity: 0.95;
+	}
+
+	.arrow	{
+		position: absolute;
+		color: black;
+		z-index: 1;
+		top:50%;
+		transform:translateY(-50%);
+		background-color: rgb(255,255,0);
+		opacity: 0.5;
+		border: solid 1px #fa0;
+		width: 30px;
+		height: 30px;
+		text-align: center;
+		line-height: 30px;
+		font-weight: 800;
+		text-decoration: none;
+		border-radius: 15px;
+	}
+
+	.turnLeft {
+		left: 1%;
+	}
+
+	.turnRight {
+		right: 1%;
+	}
+
+	.arrow:hover {
+		opacity: 0.7
+	}
+
+	.bullet {
+		left: 50%;
+		transform: translateX(-50%);
+		position: absolute;
+		z-index: 10;
+		bottom: 10px;
+	}
+
+	.bullet li {
+		border: solid  1px rgba(255,200,0,0.5);
+		width: 30px;
+		height: 6px;
+		display: inline-block;
+		background: rgba(255,200,0,0.3);
+		cursor: pointer;
+	}
+
+	.bullet >.active {
+		background-color: rgba(255,200,200,0.8);
+		height: 10px;
+		vertical-align: middle;
+	}
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <ul class="img-ct">
+            <li data-id=0><a href="#"><img src="https://images.pexels.com/photos/160699/girl-dandelion-yellow-flowers-160699.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=1><a href="#"><img src="https://images.pexels.com/photos/206593/pexels-photo-206593.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=2><a href="#"><img src="https://images.pexels.com/photos/87293/pexels-photo-87293.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+            <li data-id=3><a href="#"><img src="https://images.pexels.com/photos/407931/pexels-photo-407931.jpeg?h=350&auto=compress&cs=tinysrgb"></a></li>
+        </ul>
+        <a class="turnLeft arrow" href="#"><</a>
+        <a class="turnRight arrow" href="#">></a>
+        <ul class="bullet">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <script>
+		var $ct = $('.img-ct'),	//容器
+			$img = $('.img-ct >li'), //li
+			$leftBtn = $('.turnLeft'),
+			$rightBtn = $('.turnRight'),
+			$bottomBtn = $('.bullet'),
+			imgWidth = $img.width(),
+			imgLen = $img.length,
+			pageIndex = 0;
+			lock = false;
+			clock = true;
+			
+			$rightBtn.on('click',function(e) {
+				e.preventDefault()
+				rightBtn()
+			})
+
+			$leftBtn.on('click', function(e) {
+				e.preventDefault()
+				leftBtn()
+			})
+
+			$bottomBtn.find('li').on('click',function(e) {
+				e.preventDefault;
+				var idx = $(this).index()
+				show(idx)
+			})
+
+			function show(idxArg) {
+				if (lock) return;
+				lock = true;
+				$img.eq(pageIndex).fadeOut(500);
+				$img.eq(idxArg).fadeIn(1000,function(){
+					lock = false;
+				})
+				pageIndex = idxArg
+				checked()
+			}
+			
+			function checked() {
+				$bottomBtn.children().removeClass('active')
+					.eq(pageIndex).addClass('active')
+			}
+
+			function leftBtn() {
+				show((imgLen + pageIndex-1)%imgLen)
+			}
+
+			function rightBtn() {
+				show((pageIndex+1)%imgLen)
+			}
+			
+			$('.carousel').hover(
+				function(){
+					clock = false
+				},
+				function(){
+					clock = true;
+			})
+
+			setInterval(function(){
+				if(clock){
+					rightBtn()
+				}
+			},2000)
+    </script>
+</body>
+</html>
+			
